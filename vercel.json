@@ -1,5 +1,4 @@
 {
-    "version":2,
     "builds": [{
         "src": "weatherproject/wsgi.py",
         "use": "@vercel/python",
