@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App with OpenStreetMap</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="team.html">
+    <style>
+        body {
+            background-image: url('https://bing.com/th?id=OIP.Vct7sAQdCZd7ejjovpKdfgHaE8'); /* Add your background image URL here */
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-family: 'Poppins', sans-serif; /* Use the 'Poppins' font */
+            color: #333; /* Default text color */
+        }
+        .container {
+            margin-top: 50px; /* Add margin from the top */
+        }
+        .weather-container {
+            margin-top: 20px; /* Add margin between weather info and map */
+        }
+        .map-container {
+            margin-top: 20px; /* Add margin from the top */
+            position: relative; /* Add position relative */
+            height: 400px; /* Set height for the map container */
+        }
+        .table th, .table td {
+            border: 1px solid #dee2e6; /* Add borders to table cells */
+            padding: 8px; /* Add padding to table cells */
+        }
+        .btn-primary {
+            background-color: #007bff; /* Primary button background color */
+            border-color: #007bff; /* Primary button border color */
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Primary button hover background color */
+            border-color: #0056b3; /* Primary button hover border color */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center mt-5">
+            <div class="text-right">
+                <a class="btn btn-primary btn-lg" href="{% url 'team' %}" role="button">Meet our team</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container"><center><h1 style="color: black; font-size: 50px; font-family: 'Arial Black', sans-serif; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"><b>Weather App</b></h1>
+    </center>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <input type="text" class="form-control py-2 border-right-0 border" name="city" placeholder="Enter City" style="border-radius: 5px 0 0 5px;">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-success btn-lg px-4 border-left-0 border" style="border-radius: 0 5px 5px 0;">Search</button>
+                </div>
+            </div>
+        </form>
+        <div class="text-center">
+            <a href="{% url 'download_csv' %}" download class="btn btn-success btn-lg">Download CSV</a>
+        </div>
+        <div class="row weather-container">
+            <div class="col-md-12">
+                <div class="card bg-dark">
+                    <div class="card-body">
+                        <h2 class="card-title" style="color: white;">{{ temp }}° C</h2>
+                        <h3 class="card-subtitle mb-2" style="color: white; text-transform: uppercase;">{{ city }}</h3>
+                        <p class="card-text" style="color: white; text-transform: uppercase;">{{ description }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!-- Map container -->
+                <div id="map" class="map-container"></div>
+            </div>
+            <div class="col-md-4">
+                <div class="table-responsive">
+                    <table class="table" style="border-color: black;">
+                        <tbody>
+                            <tr style="background-color: #01010f; color: white; border:black;">
+                                <th>Parameter</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr style="background-color: #01010f; color: white; border:black;">
+                                <td>Description</td>
+                                <td>{{ description }}</td>
+                            </tr>
+                            <tr style="background-color: #01010f; color: white; border:black;">
+                                <td>Sunset</td>
+                                <td>{{ sunset }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Sunrise</td>
+                            <td>{{ sunrise }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Cloud Cover</td>
+                            <td>{{ cloud_cover }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Visibility</td>
+                            <td>{{ visibility }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Country</td>
+                            <td>{{ country }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Wind Speed</td>
+                            <td>{{ wind_speed }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Humidity</td>
+                            <td>{{ humidity }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Pressure</td>
+                            <td>{{ pressure }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Feels Like</td>
+                            <td>{{ feels_like }}°C</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Max Temperature</td>
+                            <td>{{ temp_max }}°C</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Min Temperature</td>
+                            <td>{{ temp_min }}°C</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>Today</td>
+                            <td>{{ current_date }}</td>
+                        </tr>
+                        <tr style="background-color: #01010f; color: white; border:black;">
+                            <td>UV Index</td>
+                            <td>{{ uv_index }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([18.5204, 73.8567], 6); // Initial view for India
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Define an array of cities with their coordinates and weather information
+        var cities = [
+            { name: 'Pune', coordinates: [18.5204, 73.8567], temp: 30, description: 'Sunny' },
+            { name: 'Mumbai', coordinates: [19.0760, 72.8777], temp: 28, description: 'Partly Cloudy' },
+            { name: 'Delhi', coordinates:[28.7041,77.1025], temp:32, description: 'haze'},
+            { name: 'Bangalore', coordinates: [12.9716, 77.5946], temp: 26, description: 'Mostly Sunny' },
+            { name: 'Kolkata', coordinates: [22.5726, 88.3639], temp: 29, description: 'Rainy' },
+            { name: 'Chennai', coordinates: [13.0827, 80.2707], temp: 32, description: 'Hot and Humid' },
+            { name: 'Hyderabad', coordinates: [17.3850, 78.4867], temp: 31, description: 'Partly Cloudy' },
+            { name: 'Jaipur', coordinates: [26.9124, 75.7873], temp: 27, description: 'Sunny' },
+            { name: 'Ahmedabad', coordinates: [23.0225, 72.5714], temp: 29, description: 'Sunny' },
+            { name: 'Lucknow', coordinates: [26.8467, 80.9462], temp: 28, description: 'Partly Cloudy' },
+            { name: 'Chandigarh', coordinates: [30.7333, 76.7794], temp: 26, description: 'Cloudy' },
+            { name: 'Kanpur', coordinates: [26.4499, 80.3319], temp: 27, description: 'Mostly Clear' },
+            { name: 'Surat', coordinates: [21.1702, 72.8311], temp: 30, description: 'Clear' }
+
+        ];
+
+        // Loop through the cities array and add markers for each city
+        cities.forEach(function(city) {
+            // Add marker for the city
+            var marker = L.marker(city.coordinates).addTo(map)
+                .bindPopup('<b>' + city.name + '</b><br>Temperature: ' + city.temp + '° C<br>Description: ' + city.description)
+                .openPopup();
+        });
+    </script>
+
+    <!-- Bootstrap and other scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
